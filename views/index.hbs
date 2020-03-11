@@ -1,13 +1,65 @@
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/modules/export-data.js"></script>
-<script src="https://code.highcharts.com/modules/accessibility.js"></script>
-
-<figure class="highcharts-figure">
-    <div id="container"></div>
-</figure>
-
+<div class="container" style="padding:20px;">
+	<div class="container" style="padding-bottom:20px;">
+		<form action="/fetchData" method="post">
+		<div class="row">
+			<div class="col-1 col-md-1">
+				<label>Platform</label>
+			</div>
+			<div class="col-5 col-md-5">
+				<select class="custom-select custom-select-sm" name="platforms" id="platforms">
+					<option value="all">All</option>
+					<option value="allApp">Over All App</option>
+					<option value="android">Android App</option>
+					<option value="ios">IOS App</option>
+					<option value="msite">M Site</option>
+					<option value="web">Brand Website</option>
+				</select>
+			</div>
+			<div class="col-1 col-md-1">
+				<label>Tag</label>
+			</div>
+			<div class="col-5 col-md-5">
+				<select class="custom-select custom-select-sm" name="tag" id="tag">
+					{{#each tags}}
+						<option value="{{this}}">{{this}}</option>
+					{{/each}}
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-1 col-md-1">
+				<label>From</label>
+			</div>
+			<div class="col-5 col-md-5">
+				<input placeholder="From Date" class="form-control" type="date" id="fromDate" name="fromDate">
+			</div>
+			<div class="col-1 col-md-1">
+				<label>To</label>
+			</div>
+			<div class="col-5 col-md-5">
+				<input placeholder="To Date" class="form-control" type="date" id="toDate" name="toDate">
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12 col-md-12" style="padding-top:10px;">
+				<button type="submit" class="btn btn-primary" style="float:right">Submit</button>
+			</div>
+		</div>
+		</form>
+	</div>
+	{{#if showGraph}}
+	<div class="jumbotron">
+		<figure class="highcharts-figure">
+			<div id="container"></div>
+		</figure>
+	</div>
+	{{/if}}
+</div>
 <script>
+	document.getElementById("toDate").value = "{{toDate}}";
+	document.getElementById("fromDate").value = "{{fromDate}}";
+	document.getElementById("platforms").value = "{{platforms}}";
+	document.getElementById("tag").value = "{{tag}}";
 	var categories = "{{categories}}".split(",");
 	var npsScore = "{{npsScore}}".split(",");
 	var promoters = "{{promoters}}".split(",");
@@ -26,7 +78,7 @@
 	    },
 
 	    title: {
-	        text: 'Cloud Cherry '+ "{{tags}}"
+	        text: 'Cloud Cherry '+ "{{tag}}"
 	    },
 
 	    xAxis: {
@@ -54,23 +106,31 @@
 	            stacking: 'normal'
 	        }
 	    },
-
+		credits: {
+    		enabled: false
+  		},
 	    series: [{
 	        name: 'NPS Score',
 	        data: npsScore,
-	        stack: 'npsScore'
-	    }, {
-	        name: 'Passiveness',
-	        data: passiveness,
-	        stack: 'npsTrend'
-	    }, {
+	        stack: 'npsScore',
+	    }, 
+		{
 	        name: 'Promoter',
 	        data: promoters,
-	        stack: 'npsTrend'
-	    }, {
+	        stack: 'npsTrend',
+			color : '#8dc63f'
+	    },
+		{
+	        name: 'Passiveness',
+	        data: passiveness,
+	        stack: 'npsTrend',
+			color : '#fbb040'
+	    },{
 	        name: 'Detector',
 	        data: detectors,
-	        stack: 'npsTrend'
+	        stack: 'npsTrend',
+			color: '#ef4136'
 	    }]
 	});
 </script>
+</div>

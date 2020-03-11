@@ -18,6 +18,15 @@ var npsData = new Schema({
 },{collection:'npsData'});
 var npsDataModel = mongoose.model('npsDataModel',npsData);
 
+var filterConst = {
+	"all" : ["Brand Website","Mobile Web","Contact Center","Email","Others","Android App","Mobile Lite","IOS App"],
+	"allApp" : ["Android App","IOS App"],
+	"android" : ["Android App"],
+	"ios" : ["IOS App"],
+	"msite" : ["Mobile Web","Mobile Lite"],
+	"web" : ["Brand Website"]
+}
+
 var app = express();
 
 // view engine setup
@@ -34,13 +43,49 @@ app.listen(3000);
 console.log("App Listening on port 3000");
 
 app.get('/',function(req,res) {
-	res.render('index',{
-		tags:"Purchase",
-		categories:['01/03/2020', '02/03/2020', '03/03/2020', '04/03/2020', '05/03/2020'],
-		npsScore:[5, 3, 4, 7, 2],
-		promoters:[5, 3, 4, 7, 2],
-		detectors:[5, 3, 4, 7, 2],
-		passiveness:[5, 3, 4, 7, 2]
+	npsDataModel.find().distinct('tags', function(error, tags) {
+		res.render('index',{
+			showGraph : false,
+			tags : tags
+		});
+	});
+});
+
+app.post('/fetchData',function(req,res) {
+	console.log(req.body);
+	npsDataModel.find().distinct('tags', function(error, tags) {
+		npsDataModel.find({
+			"date": {"$gte": new Date(req.body.fromDate), "$lt": new Date(req.body.toDate)},
+			"platforms" : { $all: filterConst[req.body.platforms]},
+			"tags" : req.body.tag,
+
+		}).sort([['date', -1]]).exec(function(err,data) {
+			var categories = [];
+			var npsScore = [];
+			var promoters = [];
+			var detectors = [];
+			var passiveness = [];
+			data.forEach(npsData => {
+				categories.push(new Date(npsData['date']).toLocaleDateString());
+				npsScore.push(npsData['npsScore']);	
+				promoters.push(npsData['promoters']);	
+				detectors.push(npsData['detectors']);	
+				passiveness.push(npsData['passive']);	
+			});
+			res.render('index',{
+				tag : req.body.tag,
+				showGraph : true,
+				categories:categories,
+				npsScore:npsScore,
+				promoters:promoters,
+				detectors:detectors,
+				passiveness:passiveness,
+				tags : tags,
+				fromDate : req.body.fromDate,
+				toDate : req.body.toDate,
+				platforms : req.body.platforms
+			});
+		});
 	});
 });
 
@@ -63,11 +108,5 @@ app.get('/NPS',function(req,res,next) {
 	var platforms = req.query.platforms.split(',');
 	npsDataModel.find({"tags":tags,"platforms" : { $all: platforms}},function(err,data) {
 		res.json(data);
-	});
-});
-
-app.get('/allPlatforms',function(req,res,next) {
-	npsDataModel.find().distinct('platforms', function(error, platforms) {
-    	res.json(platforms)
 	});
 });
