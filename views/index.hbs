@@ -1,0 +1,76 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+</figure>
+
+<script>
+	var categories = "{{categories}}".split(",");
+	var npsScore = "{{npsScore}}".split(",");
+	var promoters = "{{promoters}}".split(",");
+	var detectors = "{{detectors}}".split(",");
+	var passiveness = "{{passiveness}}".split(",");
+	for (var i = 0; i < npsScore.length; i++) {
+		npsScore[i] = parseInt(npsScore[i])
+		promoters[i] = parseInt(promoters[i])
+		detectors[i] = parseInt(detectors[i])
+		passiveness[i] = parseInt(passiveness[i])
+	}
+	Highcharts.chart('container', {
+
+	    chart: {
+	        type: 'column'
+	    },
+
+	    title: {
+	        text: 'Cloud Cherry '+ "{{tags}}"
+	    },
+
+	    xAxis: {
+	        categories: categories
+	    },
+
+	    yAxis: {
+	        allowDecimals: false,
+	        min: 0,
+	        title: {
+	            text: 'Score'
+	        }
+	    },
+
+	    tooltip: {
+	        formatter: function () {
+	            return '<b>' + this.x + '</b><br/>' +
+	                this.series.name + ': ' + this.y + '<br/>' +
+	                'Total: ' + this.point.stackTotal;
+	        }
+	    },
+
+	    plotOptions: {
+	        column: {
+	            stacking: 'normal'
+	        }
+	    },
+
+	    series: [{
+	        name: 'NPS Score',
+	        data: npsScore,
+	        stack: 'npsScore'
+	    }, {
+	        name: 'Passiveness',
+	        data: passiveness,
+	        stack: 'npsTrend'
+	    }, {
+	        name: 'Promoter',
+	        data: promoters,
+	        stack: 'npsTrend'
+	    }, {
+	        name: 'Detector',
+	        data: detectors,
+	        stack: 'npsTrend'
+	    }]
+	});
+</script>
