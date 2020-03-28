@@ -74,7 +74,7 @@
 	Highcharts.chart('container', {
 
 	    chart: {
-	        type: 'column'
+	        type: 'bar'
 	    },
 
 	    title: {
@@ -102,9 +102,12 @@
 	    },
 
 	    plotOptions: {
-	        column: {
+	        series: {
 	            stacking: 'normal'
-	        }
+	        },
+		dataLabels: {
+                    enabled: true
+            	}
 	    },
 		credits: {
     		enabled: false
